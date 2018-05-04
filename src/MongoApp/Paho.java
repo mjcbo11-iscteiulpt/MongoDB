@@ -10,7 +10,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class Paho implements MqttCallback {
-	
+
 	public String topic = "iscte_sid_2018_S1";
 	public String content = "Message from MqttPublishSample";
 	public int qos = 0;
@@ -19,20 +19,16 @@ public class Paho implements MqttCallback {
 	public MemoryPersistence persistence = new MemoryPersistence();
 	private LinkedList<MqttMessage> messages = new LinkedList<MqttMessage>();
 
-	public static void main(String[] args) {
-		Paho p = new Paho();	
-	}
-
 	public Paho() {
 		connect();
 	}
-	
+
 	public void connect() {
 		try {
 			MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
-			System.out.println("Connecting to broker: "+broker);
+			System.out.println("Connecting to broker: " + broker);
 			sampleClient.connect(connOpts);
 			System.out.println("Connected");
 			sampleClient.subscribe(topic);
@@ -46,30 +42,34 @@ public class Paho implements MqttCallback {
 	@Override
 	public void connectionLost(Throwable arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void deliveryComplete(IMqttDeliveryToken arg0) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
-		System.out.println(arg0);
-		System.out.println("Message arived: " + arg1);
-		messages.add(arg1);
-		notifyAll();
+		System.out.println(arg1);
+		synchronized (this) {
+			messages.add(arg1);
+			notifyAll();
+		}
+		System.out.println("passou");
 	}
-	
+
 	public synchronized MqttMessage retrieveMsg() {
 		MqttMessage msg = null;
 		try {
-			while(messages.size() == 0) {
+			while (messages.size() < 1) {
+				System.out.println("bloquear");
 				wait();
 			}
 			msg = messages.poll();
+			System.out.println("tirei msg");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
