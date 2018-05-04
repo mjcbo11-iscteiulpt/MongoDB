@@ -1,7 +1,6 @@
 package MongoApp;
 
 import java.util.LinkedList;
-
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -70,12 +69,11 @@ public class Paho implements MqttCallback {
 			while(messages.size() == 0) {
 				wait();
 			}
-//			messages.
-			return msg;
+			msg = messages.poll();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	
+		return msg;
 	}
 
 }
