@@ -11,7 +11,7 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class Paho implements MqttCallback {
 
-	public String topic = "iscte_sid_2018_S1";
+	public String topic = "sid_lab_2018";
 	public String content = "Message from MqttPublishSample";
 	public int qos = 0;
 	public String broker = "tcp://iot.eclipse.org:1883";
