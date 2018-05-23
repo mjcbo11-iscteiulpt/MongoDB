@@ -1,6 +1,8 @@
 package MongoApp;
 
 import java.util.LinkedList;
+import java.util.Properties;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -74,6 +76,12 @@ public class Paho implements MqttCallback {
 			e.printStackTrace();
 		}
 		return msg;
+	}
+	
+	private void config() {
+		Properties prop = new Properties();
+		prop.setProperty("Topic to subscribe", "");
+		prop.setProperty("Time between", "");
 	}
 
 }
