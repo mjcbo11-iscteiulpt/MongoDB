@@ -2,12 +2,9 @@ package MongoApp;
 
 import org.bson.Document;
 
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.MongoIterable;
 
 
 	
