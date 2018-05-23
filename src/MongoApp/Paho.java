@@ -80,8 +80,8 @@ public class Paho implements MqttCallback {
 	
 	private void config() {
 		Properties prop = new Properties();
-		prop.setProperty("Topic to subscribe", "");
-		prop.setProperty("Time between", "");
+		prop.setProperty("Topico a subscrever", "");
+		prop.setProperty("Periodicidade Sybase", "");
 	}
 
 }
