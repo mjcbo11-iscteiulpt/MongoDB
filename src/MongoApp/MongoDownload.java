@@ -35,6 +35,7 @@ public class MongoDownload implements Runnable {
 	FindIterable<Document> coll;
 
 	public MongoDownload() {
+		loadConfig();
 		mongoClient = new MongoClient();
 		database = mongoClient.getDatabase("LabMDB");
 		System.out.println("Connection Successful");
