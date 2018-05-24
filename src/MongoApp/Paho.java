@@ -1,9 +1,13 @@
 package MongoApp;
 
-import java.io.FileOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.Properties;
+
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
@@ -27,7 +31,7 @@ public class Paho implements MqttCallback {
 
 	public void connect() {
 		try {
-			//loadConfig();
+			loadConfig();
 			MqttClient sampleClient = new MqttClient(broker, clientId, persistence);
 			MqttConnectOptions connOpts = new MqttConnectOptions();
 			connOpts.setCleanSession(true);
@@ -42,10 +46,12 @@ public class Paho implements MqttCallback {
 	}
 
 	@Override
-	public void connectionLost(Throwable arg0) {}
+	public void connectionLost(Throwable arg0) {
+	}
 
 	@Override
-	public void deliveryComplete(IMqttDeliveryToken arg0) {}
+	public void deliveryComplete(IMqttDeliveryToken arg0) {
+	}
 
 	@Override
 	public void messageArrived(String arg0, MqttMessage arg1) throws Exception {
@@ -69,37 +75,36 @@ public class Paho implements MqttCallback {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-			return msg;
+		return msg;
+	}
+
+	private void loadConfig() {
+		File configFile = new File("default.properties");
+		try {
+			FileReader reader = new FileReader(configFile);
+			Properties props = new Properties();
+			props.load(reader);
+
+			String t = props.getProperty("Topico");
+			String b = props.getProperty("Broker");
+			this.topic = t;
+			this.broker = b;
+			reader.close();
+		} catch (IOException e) {
+			if (e instanceof FileNotFoundException) {
+				try {
+					Properties props = new Properties();
+					props.setProperty("Topico", this.topic);
+					props.setProperty("Broker", this.broker);
+					props.setProperty("Periocidade", "30");
+					FileWriter writer = new FileWriter(configFile);
+					props.store(writer, "Default settings");
+					writer.close();
+				} catch (IOException e2) {
+
+				}
+			}
 		}
+	}
 
-//	public void writeConfig() {
-//		Properties prop = new Properties();
-//		Properties configFile = new java.util.Properties();
-//    	try {
-//    		configFile.load(this.getClass().getClassLoader().getResourceAsStream("variale.properties"));
-//    		String p = configFile.getProperty("Broker");
-//    		prop.setProperty("Broker", this.broker);
-//    		prop.setProperty("Topico", this.topic);
-//    		prop.setProperty("Periocidade", p);
-// 
-//    		prop.store(new FileOutputStream("variable.properties"), null);
-//    	} catch (IOException ex) {
-//    		ex.printStackTrace();
-//        }
-//	}
-//	
-//	public void loadConfig() {
-//		Properties configFile = new java.util.Properties();
-//		try {
-//			configFile.load(this.getClass().getClassLoader().getResourceAsStream("variale.properties"));
-//			String b = configFile.getProperty("Broker");
-//			String t = configFile.getProperty("Topico");
-//			this.topic = t;
-//			this.broker = b;
-//		} catch(Exception e){
-//		    e.printStackTrace();
-//		}
-//	}
 }
-
-
