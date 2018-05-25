@@ -33,7 +33,7 @@ public class MongoUpload implements Runnable {
 	protected void messageUp(MqttMessage msg) {
 		Document doc = Document.parse(msg.toString());
 		doc.append("Estado", "0");
-		// collection.insertOne(doc);
+		collection.insertOne(doc);
 	}
 
 }
