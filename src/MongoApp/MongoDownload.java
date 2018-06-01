@@ -8,6 +8,11 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -27,7 +32,7 @@ public class MongoDownload implements Runnable {
 	private MongoClient mongoClient = null;
 	private MongoDatabase database = null;
 	private MongoCollection<Document> collection;
-	private int periodicidade = 10000; // milisegundos
+	private int periodicidade; // milisegundos
 	private List<Integer> temperatura = new ArrayList<Integer>();
 	private List<Integer> humidade = new ArrayList<Integer>();
 	private List<String> data = new ArrayList<String>();
@@ -39,7 +44,8 @@ public class MongoDownload implements Runnable {
 		mongoClient = new MongoClient();
 		database = mongoClient.getDatabase("LabMDB");
 		System.out.println("Connection Successful");
-		collection = database.getCollection("HumidadeTemperatura");
+		collection = database.getCollection("HumidadeTemperatura");		
+		this.run();
 		/*
 		 * BasicDBObject query = new BasicDBObject(); BasicDBObject field = new
 		 * BasicDBObject(); field.put("HumidadeTemperatura", 1); DBCursor cursor
@@ -56,16 +62,39 @@ public class MongoDownload implements Runnable {
 	public void getNewValues() {
 		coll = database.getCollection("HumidadeTemperatura").find(eq("Estado", 0));
 		for (Document doc : coll) {
-			System.out.println(
-					"A temperatura é " + doc.getDouble("Temperatura") + " e a Humidade é " + doc.getDouble("Humidade"));
+			System.out.println("A temperatura é " + doc.getString("Temperatura") + " e a Humidade é " + doc.getString("Humidade"));
 
 			// Aqui o valor vai ser enviado para o Sybase
-
+			sendToSybase(doc);
+			
 			Bson filter = Filters.eq("_id", doc.getObjectId("_id"));
 			Bson updates = Updates.set("Estado", 1);
 
 			collection.findOneAndUpdate(filter, updates);
 		}
+	}
+
+	private void sendToSybase(Document doc) {		
+        try {
+        	
+			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=admin;pwd=admin" );
+			Statement stmt = con.createStatement();
+			
+			String dia = doc.getString("Dia");
+			String[] array = dia.split(":"); 
+			String novoDia = array[2]+"-"+array[1]+"-"+array[0];
+			System.out.println(novoDia);
+					
+			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)    VALUES ('"+novoDia+"','"+doc.getString("Hora")+"',"+doc.getString("Temperatura")+","+doc.getString("Humidade")+")");
+			
+			stmt.close();
+			con.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        
+		
 	}
 
 	@Override
@@ -75,6 +104,7 @@ public class MongoDownload implements Runnable {
 				System.out.println("\n***************** \nComecar espera");
 				Thread.sleep(periodicidade);
 				getNewValues();
+				System.out.println("Valores inseridos no Sybase");
 				System.out.println("Valores alterados\n*****************\n");
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
@@ -91,7 +121,7 @@ public class MongoDownload implements Runnable {
 			Properties props = new Properties();
 			props.load(reader);
 
-			String p = props.getProperty("Periocidade");
+			String p = props.getProperty("Periodicidade");
 			this.periodicidade = Integer.parseInt(p);
 			reader.close();
 		} catch (IOException e) {
