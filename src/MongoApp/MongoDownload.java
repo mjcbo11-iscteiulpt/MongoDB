@@ -61,20 +61,26 @@ public class MongoDownload implements Runnable {
 
 	public void getNewValues() {
 		coll = database.getCollection("HumidadeTemperatura").find(eq("Estado", 0));
+		Boolean sucess;
 		for (Document doc : coll) {
 			System.out.println("A temperatura é " + doc.getString("Temperatura") + " e a Humidade é " + doc.getString("Humidade"));
 
 			// Aqui o valor vai ser enviado para o Sybase
-			sendToSybase(doc);
-			
+			sucess=sendToSybase(doc);
+			if(sucess) {
 			Bson filter = Filters.eq("_id", doc.getObjectId("_id"));
 			Bson updates = Updates.set("Estado", 1);
 
 			collection.findOneAndUpdate(filter, updates);
+				System.out.println("Valores alterados com sucesso");
+			}else {
+				System.out.println("Valores não alterados");
+			}
 		}
 	}
 
-	private void sendToSybase(Document doc) {		
+	private Boolean sendToSybase(Document doc) {	
+		Boolean sucess;
         try {
         	
 			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=admin;pwd=admin" );
@@ -85,16 +91,19 @@ public class MongoDownload implements Runnable {
 			String novoDia = array[2]+"-"+array[1]+"-"+array[0];
 			System.out.println(novoDia);
 					
-			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)    VALUES ('"+novoDia+"','"+doc.getString("Hora")+"',"+doc.getString("Temperatura")+","+doc.getString("Humidade")+")");
+			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
+					+ " VALUES ('"+novoDia+"','"+doc.getString("Hora")+"',"+doc.getString("Temperatura")+","+doc.getString("Humidade")+")");
 			
 			stmt.close();
 			con.close();
+			System.out.println("Valores inseridos no Sybase");			
+			sucess= true;
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("Valores não inseridos no Sybase");	
+			sucess=false;
 		}
-        
-		
+		return sucess;		
 	}
 
 	@Override
@@ -104,8 +113,7 @@ public class MongoDownload implements Runnable {
 				System.out.println("\n***************** \nComecar espera");
 				Thread.sleep(periodicidade);
 				getNewValues();
-				System.out.println("Valores inseridos no Sybase");
-				System.out.println("Valores alterados\n*****************\n");
+				
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
