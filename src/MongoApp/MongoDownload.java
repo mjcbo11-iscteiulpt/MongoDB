@@ -48,9 +48,7 @@ public class MongoDownload implements Runnable {
 	
 	public MongoDownload() {
 		loadConfig();
-		//mongoClient = new MongoClient();
-		mongoClient =new MongoClient(uri);
-		
+		mongoClient =new MongoClient(uri);		
 		database = mongoClient.getDatabase("LabMDB");
 		System.out.println("Connection Successful");
 		collection = database.getCollection("HumidadeTemperatura");		
@@ -92,7 +90,7 @@ public class MongoDownload implements Runnable {
 		Boolean sucess;
         try {
         	
-			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=admin;pwd=admin" );
+			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=java;pwd=java" );
 			Statement stmt = con.createStatement();
 			
 			String dia = doc.getString("Dia");

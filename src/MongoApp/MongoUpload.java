@@ -14,8 +14,8 @@ public class MongoUpload implements Runnable {
 	private MongoDatabase database = null;
 	private MongoCollection<Document> collection;
 	private Paho p;
+	
 	MongoClientURI uri = new MongoClientURI("mongodb://teste:teste@localhost/?authSource=LabMDB");
-
 
 	public MongoUpload(Paho p) {
 		this.p = p;
