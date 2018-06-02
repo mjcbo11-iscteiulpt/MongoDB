@@ -21,11 +21,16 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
+
+
 
 public class MongoDownload implements Runnable {
 
@@ -38,10 +43,14 @@ public class MongoDownload implements Runnable {
 	private List<String> data = new ArrayList<String>();
 	private List<String> hora = new ArrayList<String>();
 	FindIterable<Document> coll;
-
+	
+	MongoClientURI uri = new MongoClientURI("mongodb://teste:teste@localhost/?authSource=LabMDB");
+	
 	public MongoDownload() {
 		loadConfig();
-		mongoClient = new MongoClient();
+		//mongoClient = new MongoClient();
+		mongoClient =new MongoClient(uri);
+		
 		database = mongoClient.getDatabase("LabMDB");
 		System.out.println("Connection Successful");
 		collection = database.getCollection("HumidadeTemperatura");		

@@ -4,6 +4,7 @@ import org.bson.Document;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -13,10 +14,12 @@ public class MongoUpload implements Runnable {
 	private MongoDatabase database = null;
 	private MongoCollection<Document> collection;
 	private Paho p;
+	MongoClientURI uri = new MongoClientURI("mongodb://teste:teste@localhost/?authSource=LabMDB");
+
 
 	public MongoUpload(Paho p) {
 		this.p = p;
-		mongoClient = new MongoClient();
+		mongoClient = new MongoClient(uri);
 		database = mongoClient.getDatabase("LabMDB");
 		System.out.println("Connection Successful");
 		collection = database.getCollection("HumidadeTemperatura");
