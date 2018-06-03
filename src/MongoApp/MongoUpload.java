@@ -14,7 +14,8 @@ public class MongoUpload implements Runnable {
 	private MongoDatabase database = null;
 	private MongoCollection<Document> collection;
 	private Paho p;
-	
+	private double pTemp;
+
 	MongoClientURI uri = new MongoClientURI("mongodb://teste:teste@localhost/?authSource=LabMDB");
 
 	public MongoUpload(Paho p) {
@@ -29,7 +30,7 @@ public class MongoUpload implements Runnable {
 	@Override
 	public void run() {
 		while (true) {
-			messageUp(p.retrieveMsg());
+			validation(p.retrieveMsg());
 		}
 	}
 
@@ -37,6 +38,26 @@ public class MongoUpload implements Runnable {
 		Document doc = Document.parse(msg.toString());
 		doc.append("Estado", "0");
 		collection.insertOne(doc);
+	}
+
+	private void validation(MqttMessage msg) {
+		String aux = msg.toString();
+		String mqtt = aux.substring(1, (aux.length() - 1));
+		String[] mqttAux = mqtt.split(",");
+		String[] tempAux = mqttAux[0].split(":");
+		String[] humdAux = mqttAux[1].split(":");
+		Double temp = Double
+				.parseDouble(tempAux[1].substring(tempAux[1].indexOf('"') + 1, tempAux[1].lastIndexOf('"')));
+		Double humd = Double
+				.parseDouble(humdAux[1].substring(humdAux[1].indexOf('"') + 1, humdAux[1].lastIndexOf('"')));
+		if (pTemp == 0.0) {
+			pTemp = temp;
+			messageUp(msg);
+		} else if (temp >= pTemp - 5 * (Math.max(temp, pTemp) / Math.min(temp, pTemp))
+				&& temp <= pTemp + 5 * (Math.max(temp, pTemp) / Math.min(temp, pTemp)) && humd <= 99.9) {
+			messageUp(msg);
+			pTemp = temp;
+		}
 	}
 
 }
