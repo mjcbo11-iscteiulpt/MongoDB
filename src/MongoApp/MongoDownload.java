@@ -82,7 +82,7 @@ public class MongoDownload implements Runnable {
         try {
         	
 			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=java;pwd=java" );
-			Statement stmt = con.createStatement();
+			Statement stmt = con.createStatement(); 
 			
 			String dia = doc.getString("date");
 			String[] array = dia.split("/"); 
