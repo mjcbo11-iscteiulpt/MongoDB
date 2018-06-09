@@ -84,13 +84,13 @@ public class MongoDownload implements Runnable {
 			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=java;pwd=java" );
 			Statement stmt = con.createStatement();
 			
-			String dia = doc.getString("Dia");
+			String dia = doc.getString("date");
 			String[] array = dia.split("/"); 
 			String novoDia = array[2]+"-"+array[1]+"-"+array[0];
 			System.out.println(novoDia);
 					
-			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
-					+ " VALUES ('"+novoDia+"','"+doc.getString("time")+"',"+doc.getString("temperatura")+","+doc.getString("humidity")+")");
+			ResultSet rs = stmt.executeQuery("INSERT INTO admin.HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
+					+ " VALUES ('"+novoDia+"','"+doc.getString("time")+"',"+doc.getString("temperature")+","+doc.getString("humidity")+")");
 			
 			stmt.close();
 			con.close();
