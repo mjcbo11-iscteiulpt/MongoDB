@@ -61,7 +61,6 @@ public class MongoDownload implements Runnable {
 		coll = database.getCollection("HumidadeTemperatura").find(eq("Estado", 0));
 		Boolean sucess;
 		for (Document doc : coll) {
-			System.out.println("jjjjjjjjjjjjj");
 			System.out.println("A temperatura é " + doc.getString("temperature") + " e a Humidade é " + doc.getString("humidity"));
 
 			// Aqui o valor vai ser enviado para o Sybase
@@ -85,13 +84,13 @@ public class MongoDownload implements Runnable {
 			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=java;pwd=java" );
 			Statement stmt = con.createStatement();
 			
-			String dia = doc.getString("date");
+			String dia = doc.getString("Dia");
 			String[] array = dia.split("/"); 
 			String novoDia = array[2]+"-"+array[1]+"-"+array[0];
 			System.out.println(novoDia);
 					
-			ResultSet rs = stmt.executeQuery("INSERT INTO admin.HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
-					+ " VALUES ('"+novoDia+"','"+doc.getString("time")+"',"+doc.getString("temperature")+","+doc.getString("humidity")+")");
+			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
+					+ " VALUES ('"+novoDia+"','"+doc.getString("time")+"',"+doc.getString("temperatura")+","+doc.getString("humidity")+")");
 			
 			stmt.close();
 			con.close();
