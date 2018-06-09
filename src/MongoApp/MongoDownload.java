@@ -53,16 +53,7 @@ public class MongoDownload implements Runnable {
 		System.out.println("Connection Successful");
 		collection = database.getCollection("HumidadeTemperatura");		
 		this.run();
-		/*
-		 * BasicDBObject query = new BasicDBObject(); BasicDBObject field = new
-		 * BasicDBObject(); field.put("HumidadeTemperatura", 1); DBCursor cursor
-		 * = getCollection().find(query,field); while (cursor.hasNext()) {
-		 * BasicDBObject obj = (BasicDBObject) cursor.next();
-		 * if(obj.getInt("Estado")!=1) {
-		 * temperatura.add(obj.getInt("Temperatura"));
-		 * humidade.add(obj.getInt("Humidade"));
-		 * data.add(obj.getString("Data")); hora.add(obj.getString("Hora")); } }
-		 */
+		
 
 	}
 
@@ -70,7 +61,8 @@ public class MongoDownload implements Runnable {
 		coll = database.getCollection("HumidadeTemperatura").find(eq("Estado", 0));
 		Boolean sucess;
 		for (Document doc : coll) {
-			System.out.println("A temperatura é " + doc.getString("Temperatura") + " e a Humidade é " + doc.getString("Humidade"));
+			System.out.println("jjjjjjjjjjjjj");
+			System.out.println("A temperatura é " + doc.getString("temperature") + " e a Humidade é " + doc.getString("humidity"));
 
 			// Aqui o valor vai ser enviado para o Sybase
 			sucess=sendToSybase(doc);
@@ -93,13 +85,13 @@ public class MongoDownload implements Runnable {
 			Connection con = DriverManager.getConnection("jdbc:sqlanywhere:uid=java;pwd=java" );
 			Statement stmt = con.createStatement();
 			
-			String dia = doc.getString("Dia");
-			String[] array = dia.split(":"); 
+			String dia = doc.getString("date");
+			String[] array = dia.split("/"); 
 			String novoDia = array[2]+"-"+array[1]+"-"+array[0];
 			System.out.println(novoDia);
 					
-			ResultSet rs = stmt.executeQuery("INSERT INTO HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
-					+ " VALUES ('"+novoDia+"','"+doc.getString("Hora")+"',"+doc.getString("Temperatura")+","+doc.getString("Humidade")+")");
+			ResultSet rs = stmt.executeQuery("INSERT INTO admin.HumidadeTemperatura (DataMedicao,HoraMedicao,ValorMedicaoTemperatura,ValorMedicaoHumidade)   "
+					+ " VALUES ('"+novoDia+"','"+doc.getString("time")+"',"+doc.getString("temperature")+","+doc.getString("humidity")+")");
 			
 			stmt.close();
 			con.close();
